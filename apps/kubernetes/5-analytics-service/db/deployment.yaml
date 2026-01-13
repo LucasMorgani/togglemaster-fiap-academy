@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: db-auth-service
+  name: db-auth-service
+  namespace: auth-service
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  replicas: 2
+  selector:
+    matchLabels:
+      app: db-auth-service
+  template:
+    metadata:
+      labels:
+        app: db-auth-service
+    spec:
+      containers:
+        - name: db-auth-service 
+          image: postgres:18.1-alpine3.21
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "206Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secret
+                  key: POSTGRES_DB
+          volumeMounts:
+            - name: db-auth-service-init-sql
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: init.sql # Faz o mountPath virar um arquivo
+
+      volumes:
+        - name: db-auth-service-init-sql
+          configMap:
+            name: db-auth-service-init-sql

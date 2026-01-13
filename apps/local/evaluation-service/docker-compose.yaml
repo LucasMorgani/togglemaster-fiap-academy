@@ -1,0 +1,39 @@
+services:
+  redis:
+    image: redis:8.4.0-alpine
+    container_name: db-evaluation-service
+    ports:
+      - 7004:6379
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  evaluation-service:
+    build:
+      context: .
+    container_name: app-evaluation-service
+    ports:
+      - 8004:8004
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      FLAG_SERVICE_URL: ${FLAG_SERVICE_URL}
+      TARGETING_SERVICE_URL: ${TARGETING_SERVICE_URL}
+      SERVICE_API_KEY: ${SERVICE_API_KEY}
+      PORT: ${PORT}
+      AWS_SQS_URL: ${AWS_SQS_URL}
+      AWS_REGION: ${AWS_REGION}
+    networks:
+      - default
+    depends_on:
+      redis:
+        condition: service_healthy
+
+networks:
+  default:
+    external: true
+    name: togglemaster-network

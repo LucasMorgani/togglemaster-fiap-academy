@@ -1,0 +1,61 @@
+services:
+  redis:
+    image: redis:8.4.0-alpine
+    container_name: db-evaluation-service
+    ports:
+      - 7004:6379
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  key-generator:
+    build: 
+      context: ./key-generator
+    container_name: key-generator
+    volumes:
+      - ./key-generator/data:/data
+    environment:
+      MASTER_KEY: ${MASTER_KEY}
+    networks:
+      - default
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /data/api_key ]"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+
+  evaluation-service:
+    build:
+      context: .
+    container_name: app-evaluation-service
+    ports:
+      - 8004:8004
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      FLAG_SERVICE_URL: ${FLAG_SERVICE_URL}
+      TARGETING_SERVICE_URL: ${TARGETING_SERVICE_URL}
+      SERVICE_API_KEY: ${SERVICE_API_KEY}
+      PORT: ${PORT}
+      AWS_SQS_URL: ${AWS_SQS_URL}
+      AWS_REGION: ${AWS_REGION}
+    #volumes:
+    #  - ./key-generator/data/api_key.txt:/app/api_key.txt
+    networks:
+      - default
+    depends_on:
+      key-generator:
+        condition: service_completed_successfully
+
+networks:
+  default:
+    external: true
+    name: togglemaster-network

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-flag-service
+  namespace: flag-service
+spec:
+  selector:
+    app: db-flag-service
+  ports:
+  - name: db-flag-service
+    port: 7002
+    targetPort: 5432
+  type: ClusterIP

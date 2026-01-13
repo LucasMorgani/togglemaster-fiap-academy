@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-evaluation-service
+  namespace: evaluation-service
+spec:
+  selector:
+    app: app-evaluation-service
+  ports:
+  - name: app-evaluation-service
+    port: 8001
+    targetPort: 8001
+  type: ClusterIP

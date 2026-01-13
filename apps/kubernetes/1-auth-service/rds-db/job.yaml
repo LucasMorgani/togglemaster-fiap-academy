@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: auth-db-init
+  namespace: auth-service
+spec:
+  backoffLimit: 3 #Exec 3 times before fail
+  template:
+    spec: #Spec pod
+      restartPolicy: Never
+      containers:
+        - name: psql
+          image: postgres:15
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for database..."
+              until pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER"; do
+                sleep 2
+              done
+
+              export PGPASSWORD="$POSTGRES_PASSWORD"
+
+              echo "Running init.sql..."
+              PGPASSWORD="$POSTGRES_PASSWORD" psql \
+                -h "$POSTGRES_HOST" \
+                -p "$POSTGRES_PORT" \
+                -U "$POSTGRES_USER" \
+                -d "$POSTGRES_DB" \
+                -f /sql/init.sql
+              echo "Table created successfully"
+              echo "--------"
+              echo "Checking tables..."
+              psql \
+                -h $POSTGRES_HOST \
+                -p $POSTGRES_PORT \
+                -U $POSTGRES_USER \
+                -d $POSTGRES_DB \
+                -c "\dt"
+
+              echo "Job ended"
+          volumeMounts:
+            - name: sql-volume
+              mountPath: /sql
+          envFrom:
+            - secretRef:
+                name: auth-db-secret
+            - secretRef:
+                name: auth-db-secret-host
+      volumes:
+        - name: sql-volume
+          configMap:
+            name: db-auth-service-init-sql

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-evaluation-service
+  name: app-evaluation-service
+  namespace: evaluation-service
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-evaluation-service
+  template:
+    metadata:
+      labels:
+        app: app-evaluation-service
+    spec:
+      containers:
+        - name: app-evaluation-service 
+          image: morganis1411/togglemaster_evaluation-service:1.0
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "206Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: AWS_REGION
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_SQS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: AWS_SQS_URL
+            - name: FLAG_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: FLAG_SERVICE_URL
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: PORT
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: REDIS_URL
+            - name: SERVICE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: SERVICE_API_KEY
+            - name: TARGETING_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: evaluation-service-secret
+                  key: TARGETING_SERVICE_URL
+              

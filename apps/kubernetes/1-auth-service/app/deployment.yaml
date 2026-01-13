@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-auth-service
+  name: app-auth-service
+  namespace: auth-service
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-auth-service
+  template:
+    metadata:
+      labels:
+        app: app-auth-service
+    spec:
+      containers:
+        - name: app-auth-service 
+          image: morganis1411/togglemaster_auth-service:1.1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "206Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret
+                  key: POSTGRES_DB
+            - name: MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret
+                  key: MASTER_KEY
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret
+                  key: POSTGRES_PORT
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret-host
+                  key: POSTGRES_HOST                 
+              
