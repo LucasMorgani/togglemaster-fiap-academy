@@ -1,0 +1,158 @@
+# ------------------
+# Local
+# ------------------
+.env
+evaluation-service.bkp
+# ------------------
+# Go
+# ------------------
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Vendor directory (if you want to ignore dependencies)
+vendor/
+
+# Build directories
+bin/
+build/
+
+# IDE/editor files
+*.swp
+*.swo
+.idea/
+.vscode/
+*.iml
+
+# Go modules
+go.sum
+
+# ------------------
+# Python
+# ------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+*.whl
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# IDE/editor files
+*.sublime-project
+*.sublime-workspace
+.idea/
+.vscode/
+*.iml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+####################################
+# Terraform
+####################################
+
+# Diretório de estado
+.terraform/
+.terraform.lock.hcl
+
+# State files
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+
+# Variáveis sensíveis
+terraform.tfvars
+*.tfvars
+*.tfvars.json
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI config files
+.terraformrc
+terraform.rc
+
+####################################
+# Terraform plan
+####################################
+*.tfplan
+
+####################################
+# Logs
+####################################
+*.log
+
+####################################
+# Editor / SO
+####################################
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+####################################
+# Kubernetes
+####################################
+# Kubernetes local / runtime
+*.log
+*.tmp
+
+# Kubeconfig
+.kube/
+kubeconfig
+kubeconfig-*
+
+# Kustomize
+kustomization.yaml.bak
+
+# Secrets
+*secret*.yaml
+*secrets*.yaml
+.env
+.env.*
+*.key
+*.pem
+*.crt
