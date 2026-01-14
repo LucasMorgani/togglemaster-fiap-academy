@@ -21,7 +21,7 @@ variable "db_password" {
 
 variable "db_auth_endpoint" {
   type        = string
-  description = "User to RDS Postgres"
+  description = "Host endpoint to RDS Postgres"
 }
 
 #variable "db_auth_name" {
@@ -31,7 +31,7 @@ variable "db_auth_endpoint" {
 
 variable "db_flag_endpoint" {
   type        = string
-  description = "User to RDS Postgres"
+  description = "Host endpoint to RDS Postgres"
 }
 
 #variable "db_flag_name" {
@@ -41,13 +41,30 @@ variable "db_flag_endpoint" {
 
 variable "db_targeting_endpoint" {
   type        = string
-  description = "User to RDS Postgres"
+  description = "Host endpoint to RDS Postgres"
 }
 
 #variable "db_targeting_name" {
 #  type        = string
 #  description = "Password to RDS Postgres"
 #}
+
+variable "evaluation_db_endpoint" {
+  type        = string
+  description = "User to Redis"
+}
+
+variable "sqs_queue_url" {
+  type        = string
+  description = "SQS Queue"
+}
+
+variable "dynamodb_url" {
+  type        = string
+  description = "Dynamodb url"
+}
+
+
 
 
 

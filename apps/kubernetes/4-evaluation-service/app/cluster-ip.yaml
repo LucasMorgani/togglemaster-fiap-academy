@@ -8,6 +8,6 @@ spec:
     app: app-evaluation-service
   ports:
   - name: app-evaluation-service
-    port: 8001
-    targetPort: 8001
+    port: 8004
+    targetPort: 8004
   type: ClusterIP

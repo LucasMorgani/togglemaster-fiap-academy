@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-auth-service
-  namespace: auth-service
+  name: app-analytics-service
+  namespace: analytics-service
 spec:
   selector:
-    app: app-auth-service
+    app: app-analytics-service
   ports:
-  - name: app-auth-service
-    port: 8001
-    targetPort: 8001
+  - name: app-analytics-service
+    port: 8005
+    targetPort: 8005
   type: ClusterIP

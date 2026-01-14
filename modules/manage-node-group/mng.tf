@@ -2,7 +2,7 @@
 resource "aws_eks_node_group" "eks_manage_node_group" {
   cluster_name    = var.cluster_name
   node_group_name = "${var.project_name}-node_group"
-  node_role_arn   = "arn:aws:iam::449954007039:role/c184285a4776817l12705482t1w449954007-LabEksNodeRole-I92MRaLKOaQ9"
+  node_role_arn   = "arn:aws:iam::449954007039:role/c184285a4776817l12705482t1w449954007-LabEksNodeRole-yJIbh89KbaGa"
   ami_type        = "AL2_x86_64"
   instance_types  = ["t3.medium"]
 

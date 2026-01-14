@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: app-auth-service
-  name: app-auth-service
-  namespace: auth-service
+    app: app-analytics-service
+  name: app-analytics-service
+  namespace: analytics-service
 spec:
   strategy:
     rollingUpdate:
@@ -13,15 +13,15 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: app-auth-service
+      app: app-analytics-service
   template:
     metadata:
       labels:
-        app: app-auth-service
+        app: app-analytics-service
     spec:
       containers:
-        - name: app-auth-service 
-          image: morganis1411/togglemaster_auth-service:1.0
+        - name: app-analytics-service 
+          image: morganis1411/togglemaster_analytics-service:1.1
           resources:
             requests:
               cpu: "250m"
@@ -29,35 +29,16 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service-secret
-                  key: POSTGRES_DB
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service-secret
-                  key: DATABASE_URL
-            - name: MASTER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service-secret
-                  key: MASTER_KEY
-            - name: PORT
-              valueFrom:
-                secretKeyRef:
-                  name: auth-service-secret
-                  key: PORT
-              
+          #livenessProbe:
+          #  httpGet:
+          #    path: "/health"
+          #    port: 8004
+          #readinessProbe:
+          #  httpGet:
+          #    path: "/health"
+          #    port: 8004
+          envFrom:
+            - secretRef:
+                name: analytics-db-secret #Credentials to db login and generics
+            - secretRef:
+                name: analytics-db-secret-host #Credential to db login (host)

@@ -1,6 +1,6 @@
 #RDS Security Group. It will allow all trafic from vpc project
 resource "aws_security_group" "rds_sg" {
-  name        = "rds-togglemaster-sg"
+  name        = "${var.project_name}-rds-sg"
   description = "Allow Postgres from inside VPC"
   vpc_id      = var.vpc_id
 
@@ -21,7 +21,7 @@ resource "aws_security_group" "rds_sg" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-rds-auth-service-sg"
+      Name = "${var.project_name}-rds-sg"
     }
   )
 }

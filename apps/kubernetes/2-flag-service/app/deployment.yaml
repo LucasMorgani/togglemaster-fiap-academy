@@ -30,35 +30,17 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: flag-db-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: flag-db-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: flag-db-secret
-                  key: POSTGRES_DB
-            - name: AUTH_SERVICE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: flag-db-secret
-                  key: AUTH_SERVICE_URL
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: flag-db-secret
-                  key: POSTGRES_PORT
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: flag-db-secret-host
-                  key: POSTGRES_HOST
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8002
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8002
+          envFrom:
+            - secretRef:
+                name: flag-db-secret #Credentials to db login and generics
+            - secretRef:
+                name: flag-db-secret-host #Credential to db login (host)
               

@@ -32,3 +32,18 @@ output "db_targeting_endpoint" {
 #output "db_targeting_name" {
 #  value = aws_db_instance.postgres_targeting_service.db_name
 #}
+
+output "evaluation_db_endpoint" {
+  value = aws_elasticache_replication_group.redis_cluster.primary_endpoint_address
+}
+
+output "sqs_queue_url" {
+  description = "URL da fila SQS"
+  value       = aws_sqs_queue.aws_sqs.url
+}
+
+output "dynamodb_url" {
+  description = "URL da fila SQS"
+  value       = aws_dynamodb_table.aws_dynamodb.name
+}
+

@@ -30,7 +30,8 @@ provider "aws" {
 
 
 data "aws_eks_cluster" "cluster" {
-  name = module.eks_cluster.cluster_name
+  name       = module.eks_cluster.cluster_name
+  depends_on = [module.eks_cluster]
 }
 
 #Kubernetes provider to exec a job

@@ -1,5 +1,5 @@
-cluster_endpoint=a55984e7df0644267ae701089ec43d72-1758156092.us-east-1.elb.amazonaws.com
-API_KEY=tm_key_9b5a16f1f408514e4b5518e114d75a478ac14dc49d28253bbca0148850e73231
+cluster_endpoint=a7e27feef316c48d1a97ec2dbb8df092-332776828.us-east-1.elb.amazonaws.com
+API_KEY=tm_key_1d27ccc99d8f3f14efe9b385ad7711a7eaf62b3e8033dd58a1fd71082778a0cd
 
 terraform_apply:
 	terraform plan
@@ -23,7 +23,7 @@ k8s_up:
 #Create-resources
 	kubectl apply -f apps/kubernetes/services/metrics.yaml
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.6/deploy/static/provider/cloud/deploy.yaml
-	sleep 10
+	sleep 30
 	kubectl apply -f apps/kubernetes/services/ingress.yaml
 #auth-service-app
 	kubectl apply -f apps/kubernetes/1-auth-service/secrets.yaml
@@ -31,21 +31,21 @@ k8s_up:
 	kubectl apply -f apps/kubernetes/1-auth-service/app/cluster-ip.yaml
 #auth-service-db
 	kubectl apply -f apps/kubernetes/1-auth-service/rds-db/configmap.yaml
-	kubectl apply -f apps/kubernetes/1-auth-service/rds-db/job.yaml
+	-kubectl apply -f apps/kubernetes/1-auth-service/rds-db/job.yaml
 #flag-service
 	kubectl apply -f apps/kubernetes/2-flag-service/secrets.yaml
 	kubectl apply -f apps/kubernetes/2-flag-service/app/deployment.yaml
 	kubectl apply -f apps/kubernetes/2-flag-service/app/cluster-ip.yaml
 #flag-service-db
 	kubectl apply -f apps/kubernetes/2-flag-service/rds-db/configmap.yaml
-	kubectl apply -f apps/kubernetes/2-flag-service/rds-db/job.yaml
+	-kubectl apply -f apps/kubernetes/2-flag-service/rds-db/job.yaml
 #targeting-service
 	kubectl apply -f apps/kubernetes/3-targeting-service/secrets.yaml
 	kubectl apply -f apps/kubernetes/3-targeting-service/app/deployment.yaml
 	kubectl apply -f apps/kubernetes/3-targeting-service/app/cluster-ip.yaml
 #targeting-service-db
 	kubectl apply -f apps/kubernetes/3-targeting-service/rds-db/configmap.yaml
-	kubectl apply -f apps/kubernetes/3-targeting-service/rds-db/job.yaml
+	-kubectl apply -f apps/kubernetes/3-targeting-service/rds-db/job.yaml
 k8s_down:
 #auth-service
 	kubectl delete -f apps/kubernetes/1-auth-service/app/cluster-ip.yaml
@@ -73,14 +73,14 @@ k8s_down:
 	kubectl delete -f apps/kubernetes/metrics.yaml
 	kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.6/deploy/static/provider/cloud/deploy.yaml
 
-
+make_all: terraform_apply k8s_up
 
 test:
 	curl http://$(cluster_endpoint)/auth-service/health
 	curl http://$(cluster_endpoint)/flag-service/health
 	curl http://$(cluster_endpoint)/targeting-service/health
-#	curl http://$(cluster_endpoint)/evaluation-service/health
-#	curl http://$(cluster_endpoint)/analytics-service/health
+	curl http://$(cluster_endpoint)/evaluation-service/health
+	curl http://$(cluster_endpoint)/analytics-service/health
 
 init_1:
 #Criando o API_KEY

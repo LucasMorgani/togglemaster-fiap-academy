@@ -30,35 +30,46 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: auth-db-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: auth-db-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: auth-db-secret
-                  key: POSTGRES_DB
-            - name: MASTER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: auth-db-secret
-                  key: MASTER_KEY
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: auth-db-secret
-                  key: POSTGRES_PORT
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: auth-db-secret-host
-                  key: POSTGRES_HOST                 
-              
+          #startupProbe:
+          #  httpGet:
+          #    path: /health
+          #    port: 8001
+          #  periodSeconds: 5
+          #  failureThreshold: 10
+          #livenessProbe:
+          #  httpGet:
+          #    path: "/health"
+          #    port: 8001
+          #readinessProbe:
+          #  httpGet:
+          #    path: "/health"
+          #    port: 8001
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            failureThreshold: 180   # 180 * 1s = 3 minutos
+            periodSeconds: 1
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 180
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          envFrom:
+            - secretRef:
+                name: auth-db-secret #Credentials to db login and generics
+            - secretRef:
+                name: auth-db-secret-host #Credential to db login (host)

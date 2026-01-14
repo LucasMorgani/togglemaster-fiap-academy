@@ -47,5 +47,8 @@ module "kubernetes" {
   #db_flag_name      = module.resources.db_flag_name
   db_targeting_endpoint = module.resources.db_targeting_endpoint
   #db_targeting_name      = module.resources.db_targeting_name
-  depends_on = [module.eks_cluster, module.eks_mng]
+  evaluation_db_endpoint = module.resources.evaluation_db_endpoint
+  sqs_queue_url          = module.resources.sqs_queue_url
+  dynamodb_url           = module.resources.dynamodb_url
+  depends_on             = [module.eks_cluster, module.eks_mng]
 }
