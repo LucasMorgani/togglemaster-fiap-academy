@@ -29,14 +29,14 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          #livenessProbe:
-          #  httpGet:
-          #    path: "/health"
-          #    port: 8004
-          #readinessProbe:
-          #  httpGet:
-          #    path: "/health"
-          #    port: 8004
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8004
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8004
           envFrom:
             - secretRef:
                 name: evaluation-db-secret #Credentials to db login and generics

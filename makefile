@@ -3,7 +3,11 @@ API_KEY=tm_key_1d27ccc99d8f3f14efe9b385ad7711a7eaf62b3e8033dd58a1fd71082778a0cd
 
 terraform_apply:
 	terraform plan
-	terraform apply --auto-approve
+	terraform apply -target=module.eks_network
+	terraform apply -target=module.resources
+	terraform apply -target=module.eks_cluster
+	terraform apply -target=module.eks_mng
+	terraform apply -target=module.kubernetes
 	aws eks update-kubeconfig --region us-east-1 --profile fiapaws --name togglemaster_project-cluster
 
 terraform_destroy:
@@ -23,7 +27,7 @@ k8s_up:
 #Create-resources
 	kubectl apply -f apps/kubernetes/services/metrics.yaml
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.6/deploy/static/provider/cloud/deploy.yaml
-	sleep 30
+	sleep 60
 	kubectl apply -f apps/kubernetes/services/ingress.yaml
 #auth-service-app
 	kubectl apply -f apps/kubernetes/1-auth-service/secrets.yaml
@@ -92,3 +96,12 @@ init_3:
 #Definindo regra de segmentação
 	curl -X POST http://$(cluster_endpoint)/targeting-service/rules -H "Content-Type: application/json" -H "Authorization: Bearer $(API_KEY)" -d '{"flag_name": "enable-new-dashboard","is_enabled": true,"rules": {"type": "PERCENTAGE","value": 50}}'
 
+init_4:
+#evaluation-service-app
+	kubectl apply -f apps/kubernetes/4-evaluation-service/secrets.yaml
+	kubectl apply -f apps/kubernetes/4-evaluation-service/app/deployment.yaml
+	kubectl apply -f apps/kubernetes/4-evaluation-service/app/cluster-ip.yaml
+#analytics-service
+	kubectl apply -f apps/kubernetes/5-analytics-service/secrets.yaml
+	kubectl apply -f apps/kubernetes/5-analytics-service/app/deployment.yaml
+	kubectl apply -f apps/kubernetes/5-analytics-service/app/cluster-ip.yaml
