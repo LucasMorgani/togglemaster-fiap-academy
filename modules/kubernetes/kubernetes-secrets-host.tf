@@ -66,7 +66,7 @@ resource "kubernetes_secret_v1" "evaluation_db_endpoint" {
   }
 
   data = {
-    REDIS_URL   = "redis:${var.evaluation_db_endpoint}:6379"
+    REDIS_URL   = "redis://${var.evaluation_db_endpoint}:6379"
     AWS_REGION  = data.aws_region.current.id
     AWS_SQS_URL = var.sqs_queue_url
   }
@@ -86,7 +86,7 @@ resource "kubernetes_secret_v1" "analytics_db_endpoint" {
   }
 
   data = {
-    AWS_DYNAMODB_TABLE = "redis://${var.evaluation_db_endpoint}:6379"
+    AWS_DYNAMODB_TABLE = var.dynamodb_url
     AWS_REGION         = data.aws_region.current.id
     AWS_SQS_URL        = var.sqs_queue_url
   }

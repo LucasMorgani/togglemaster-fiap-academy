@@ -10,7 +10,7 @@ spec:
     rollingUpdate:
       maxSurge: 50%
       maxUnavailable: 0
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-flag-service
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: app-flag-service 
-          image: morganis1411/togglemaster_flag-service:1.1
+          image: 449954007039.dkr.ecr.us-east-1.amazonaws.com/togglemaster_flag-service:1.2.0
           imagePullPolicy: Always
           resources:
             requests:

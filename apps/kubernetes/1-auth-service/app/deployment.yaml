@@ -10,7 +10,7 @@ spec:
     rollingUpdate:
       maxSurge: 50%
       maxUnavailable: 0
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-auth-service
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: app-auth-service 
-          image: morganis1411/togglemaster_auth-service:1.1
+          image: 449954007039.dkr.ecr.us-east-1.amazonaws.com/togglemaster_auth-service:1.2.0
           imagePullPolicy: Always
           resources:
             requests:
@@ -30,27 +30,13 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          #startupProbe:
-          #  httpGet:
-          #    path: /health
-          #    port: 8001
-          #  periodSeconds: 5
-          #  failureThreshold: 10
-          #livenessProbe:
-          #  httpGet:
-          #    path: "/health"
-          #    port: 8001
-          #readinessProbe:
-          #  httpGet:
-          #    path: "/health"
-          #    port: 8001
+
           startupProbe:
             httpGet:
               path: /health
               port: 8001
             failureThreshold: 180   # 180 * 1s = 3 minutos
             periodSeconds: 1
-
           readinessProbe:
             httpGet:
               path: /health
@@ -59,7 +45,6 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
-
           livenessProbe:
             httpGet:
               path: /health

@@ -1,7 +1,7 @@
 #Creating eks cluster
 resource "aws_eks_cluster" "eks_cluster" {
   name     = "${var.project_name}-cluster"
-  role_arn = "arn:aws:iam::449954007039:role/c184285a4776817l12705482t1w449954-LabEksClusterRole-b8ZB1PMZFBNU" # Necessary role (iam.tf)
+  role_arn = "arn:aws:iam::449954007039:role/LabRole" # Necessary role (iam.tf)
   version  = "1.31"                                                                                            # K8S version
 
   vpc_config {

@@ -16,10 +16,9 @@ terraform {
   }
   # Creating a backend for the Terraform state to be stored in S3 (Needed for CI/CD)
   backend "s3" {
-    bucket = "togglemaster-tfstate"
+    bucket = "togglemaster-tfstate-2"
     key    = "dev/terraform.tfstate"
     region = "us-east-1"
-    #profile = "fiapaws"
   }
 }
 

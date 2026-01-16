@@ -10,7 +10,7 @@ spec:
     rollingUpdate:
       maxSurge: 50%
       maxUnavailable: 0
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-analytics-service
@@ -21,22 +21,26 @@ spec:
     spec:
       containers:
         - name: app-analytics-service 
-          image: morganis1411/togglemaster_analytics-service:1.1
+          image: 449954007039.dkr.ecr.us-east-1.amazonaws.com/togglemaster_analytics-service:1.2.0
           resources:
             requests:
               cpu: "250m"
-              memory: "206Mi"
+              memory: "256Mi"
             limits:
               cpu: "500m"
               memory: "512Mi"
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: /health
               port: 8005
+            initialDelaySeconds: 15
+            periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: /health
               port: 8005
+            initialDelaySeconds: 5
+            periodSeconds: 5
           envFrom:
             - secretRef:
                 name: analytics-db-secret #Credentials to db login and generics

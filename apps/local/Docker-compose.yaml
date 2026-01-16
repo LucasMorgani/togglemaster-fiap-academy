@@ -1,0 +1,224 @@
+services:
+  # ----------------------------------------------------------------
+  # BANCO 1: Para o Auth Service (Porta Host: 5432)
+  # ----------------------------------------------------------------
+  db_auth:
+    image: postgres:16-alpine 
+    restart: always
+    container_name: postgres_auth
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME} 
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+      - ./auth-service/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - toggle
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${AUTH_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ----------------------------------------------------------------
+  # BANCO 2: Para o Flag Service (Porta Host: 5433)
+  # ----------------------------------------------------------------
+  db_flags:
+    image: postgres:16-alpine
+    restart: always
+    container_name: postgres_flags
+    ports:
+      - "5433:5432" 
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${FLAGS_DB_NAME} 
+    volumes:
+      - pgdata_flags:/var/lib/postgresql/data
+      - ./flag-service/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - toggle
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d flags_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+  # ----------------------------------------------------------------
+  # BANCO 3: Para o targeting Service ( Porta Host 5434)
+  #-----------------------------------------------------------------
+
+  db_targeting:
+    image: postgres:16-alpine
+    restart: always
+    container_name: postgres_targeting
+    ports:
+      - "5434:5432" 
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${TARGETING_DB_NAME} 
+    volumes:
+      - pgdata_targeting:/var/lib/postgresql/data
+      - ./targeting-service/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - toggle
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d targeting_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis_evaluation:
+    image: redis:alpine
+    restart: always
+    container_name: evaluation_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - toggle
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
+  # ----------------------------------------------------------------
+  # APP 1: Auth Service (Go)
+  # ----------------------------------------------------------------
+  auth:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: app_auth
+    ports:
+      - "8001:8001"
+    environment:
+      # Conecta no serviço 'db' na porta interna 5432
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db_auth:5432/db_auth?sslmode=disable"
+      MASTER_KEY: ${MASTER_KEY}
+    depends_on:
+      db_auth:
+        condition: service_healthy
+    networks:
+      - toggle
+
+  # ----------------------------------------------------------------
+  # APP 2: Flag Service (Python)
+  # ----------------------------------------------------------------
+  flag-service:
+    build:
+      context: ./flag-service
+      dockerfile: Dockerfile
+    container_name: app_flags
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db_flags:5432/flags_db?sslmode=disable"
+      AUTH_SERVICE_URL: "http://auth:8001"
+      PORT: "8002"
+    depends_on:
+      db_flags:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - toggle
+
+  #-----------------------------------------------------------------
+  # APP 3 - Targeting Service (Python)
+  #-----------------------------------------------------------------
+
+  targeting-service:
+    build:
+      context: ./targeting-service
+      dockerfile: Dockerfile
+    container_name: app_targeting
+    ports:
+      - "8003:8003"
+    environment:
+      # Conecta no serviço 'db_targeting' na porta interna 5432
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db_targeting:5432/targeting_db?sslmode=disable"
+      AUTH_SERVICE_URL: "http://auth:8001"
+      PORT: "8003"
+    depends_on:
+      db_targeting:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - toggle
+
+  #---------------------------------------------------------------
+  # APP 4 - Evaluation Service (Go)
+  #--------------------------------------------------------------
+
+  evaluation_service:
+    build:
+      context: ./evaluation-service
+      dockerfile: Dockerfile
+    container_name: app_evaluation
+    ports:
+      - "8004:8004"
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    environment:
+      PORT: "8004"
+      REDIS_URL: "redis://redis_evaluation:6379" 
+      FLAG_SERVICE_URL: "http://flag-service:8002"
+      TARGETING_SERVICE_URL: "http://targeting-service:8003"
+      SERVICE_API_KEY:
+      AWS_SQS_URL: ${AWS_SQS_URL}
+      AWS_REGION: ${AWS_REGION}
+      AWS_PROFILE: default
+    depends_on:
+      redis_evaluation:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      flag-service:
+        condition: service_started
+    networks:
+      - toggle
+
+
+#-----------------------------------------------------------------------
+# APP 5 - Analytics Service (Python)
+#-----------------------------------------------------------------------
+
+  analytics_service:
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+    container_name: app_analytics
+    ports:
+      - "8005:8005"
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    environment:
+      PORT: ${ANALYTICS_PORT}
+      AWS_DYNAMODB_TABLE: ${AWS_DYNAMODB_TABLE}
+      AWS_REGION: ${AWS_REGION}
+      AWS_SQS_URL: ${AWS_SQS_URL}
+      AWS_PROFILE: ${AWS_PROFILE}
+    networks:
+      - toggle
+
+  
+
+networks:
+  toggle:
+    driver: bridge
+ 
+volumes:
+  pgdata_auth:  # Volume do Banco 1
+  pgdata_flags: # Volume do Banco 2
+  pgdata_targeting: # Volume do banco 3
