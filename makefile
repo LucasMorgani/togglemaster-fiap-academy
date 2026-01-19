@@ -140,7 +140,7 @@ test_2:
 
 #Testar se a API_KEY é válida
 key_validate:
-	curl http://$(CLUSTER_ENDPOINT)/validate -H "Authorization: Bearer $(API_KEY)"
+	curl http://$(CLUSTER_ENDPOINT)/auth-service/validate -H "Authorization: Bearer $(API_KEY)"
 
 #Testar aplicações unitárias
 test_auth:
